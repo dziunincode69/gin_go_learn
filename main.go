@@ -1,38 +1,32 @@
 package main
 
 import (
+	"gin_go_learn/config"
+	"gin_go_learn/internal/routes"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
+	config.InitializeENV()
 }
 
 func main() {
 	port := os.Getenv("PORT")
 	gin.SetMode(os.Getenv("MODE"))
-	app := gin.New()
-	app.GET("/", func(c *gin.Context) {
-		ua := c.GetHeader("User-Agent")
-		if ua != "insomnia/10.0.0" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Access Denied"})
-			return
-		}
-		resp := gin.H{"message": "Hello World"}
-		c.JSON(http.StatusOK, resp)
-
-	})
+	app := SetupRouter()
 	err := app.Run(":" + port)
 	if err != nil {
 		log.Fatal("Failed to bind ", err)
 	}
 
+}
+
+func SetupRouter() *gin.Engine {
+	db := config.ConnectDB()
+	router := gin.Default()
+	routes.InitUserRoutes(db, router)
+	return router
 }
