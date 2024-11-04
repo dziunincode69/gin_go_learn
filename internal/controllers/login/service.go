@@ -22,5 +22,8 @@ func (s *service) LoginService(input *LoginInput) (*models.User, error) {
 		Password: input.Password,
 	}
 	check, err := s.repository.LoginRepository(&user)
-	return check, err
+	if err != nil {
+		return nil, err
+	}
+	return check, nil
 }
