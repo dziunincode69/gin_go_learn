@@ -10,14 +10,16 @@ import (
 
 type MyAppClaims struct {
 	jwt.RegisteredClaims
-	ID    int
-	Email string
+	ID      int
+	Email   string
+	IsAdmin bool
 }
 
 func NewSign(Data map[string]any) (string, error) {
 	key := os.Getenv("JWT_KEY")
 	ID := Data["id"].(int)
 	Email := Data["email"].(string)
+	IsAdmin := Data["is_admin"].(bool)
 	claims := MyAppClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -25,8 +27,9 @@ func NewSign(Data map[string]any) (string, error) {
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "ManestySimpleApp",
 		},
-		ID:    ID,
-		Email: Email,
+		ID:      ID,
+		Email:   Email,
+		IsAdmin: IsAdmin,
 	}
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -47,7 +50,7 @@ func ParseToken(access_token string) (*jwt.Token, error) {
 	}
 	return token, nil
 }
-func CheckJWT(tokenjwt *jwt.Token) (*MyAppClaims, error) {
+func CheckToken(tokenjwt *jwt.Token) (*MyAppClaims, error) {
 	claim := tokenjwt.Claims.(*MyAppClaims)
 	if time.Now().Unix() > claim.ExpiresAt.Unix() {
 		return nil, errors.New("JWT Has Expired")

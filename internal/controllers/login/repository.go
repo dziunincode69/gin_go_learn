@@ -9,7 +9,7 @@ import (
 )
 
 type Repository interface {
-	LoginRepository(input *models.User) (*models.User, string)
+	LoginRepository(input *models.User) (*models.User, error)
 }
 
 type repository struct {
@@ -22,19 +22,19 @@ func NewLoginRepository(db *gorm.DB) *repository {
 	}
 }
 
-func (r *repository) LoginRepository(input *models.User) (*models.User, string) {
+func (r *repository) LoginRepository(input *models.User) (*models.User, error) {
 	var user models.User
 	err := r.db.Model(&user).Where("email = ?", input.Email).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, "USER_NOT_FOUND"
+			return nil, errors.New("USER_NOT_FOUND")
 		}
-		return nil, "DATABASE_ERROR"
+		return nil, err
 	}
 	hashedpwd := user.Password
 	checkpwd := helper.CheckPasswordHash(input.Password, hashedpwd)
 	if !checkpwd {
-		return nil, "WRONG_PASSWORD"
+		return nil, errors.New("WRONG_PASSWORD")
 	}
-	return &user, ""
+	return &user, nil
 }

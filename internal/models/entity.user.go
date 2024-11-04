@@ -11,6 +11,7 @@ type User struct {
 	Name     string `gorm:"not null"`
 	Email    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
+	IsAdmin  bool   `gorm:"not null"`
 }
 
 func (U *User) BeforeCreate(db *gorm.DB) error {
