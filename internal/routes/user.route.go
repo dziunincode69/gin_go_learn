@@ -1,10 +1,10 @@
 package routes
 
 import (
-	loginhandler "gin_go_learn/handlers/login"
-	getuserhandler "gin_go_learn/handlers/user"
 	getuser "gin_go_learn/internal/controllers/get_user"
 	"gin_go_learn/internal/controllers/login"
+	loginhandler "gin_go_learn/internal/handlers/login"
+	getuserhandler "gin_go_learn/internal/handlers/user"
 	"gin_go_learn/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
