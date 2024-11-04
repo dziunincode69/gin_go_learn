@@ -1,20 +1,38 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
-const PORT = "8080"
-const MODE = gin.DebugMode
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
-	gin.SetMode(MODE)
+	port := os.Getenv("PORT")
+	gin.SetMode(os.Getenv("MODE"))
 	app := gin.New()
 	app.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello World from gin")
+		ua := c.GetHeader("User-Agent")
+		if ua != "insomnia/10.0.0" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Access Denied"})
+			return
+		}
+		resp := gin.H{"message": "Hello World"}
+		c.JSON(http.StatusOK, resp)
+
 	})
-	app.Run(":" + PORT)
+	err := app.Run(":" + port)
+	if err != nil {
+		log.Fatal("Failed to bind ", err)
+	}
 
 }
