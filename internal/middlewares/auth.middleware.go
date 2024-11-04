@@ -14,6 +14,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Unauthorized",
 			})
+			c.Abort()
 			return
 		}
 		claims, err := helper.ParseToken(access_token)
@@ -21,6 +22,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
+			c.Abort()
 			return
 		}
 		check, err := helper.CheckToken(claims)
@@ -28,12 +30,14 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
+			c.Abort()
 			return
 		}
 		if !check.IsAdmin {
 			c.JSON(http.StatusForbidden, gin.H{
 				"error": "only admin can access this page",
 			})
+			c.Abort()
 			return
 		}
 		c.Set("user", check)

@@ -1,7 +1,6 @@
 package getuserhandler
 
 import (
-	"fmt"
 	getuser "gin_go_learn/internal/controllers/get_user"
 	"net/http"
 	"strconv"
@@ -35,6 +34,20 @@ func (h *handler) HandleGetUser(c *gin.Context) {
 		return
 	}
 	user, err := h.service.GetUserService(idparamtoint)
-	fmt.Println(user)
+	if err != nil {
+		switch err.Error() {
+		case "USER_NOT_FOUND":
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User Not Found",
+			})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, user)
 
 }
